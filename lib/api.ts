@@ -76,7 +76,7 @@ async function request<T>(
 // ---------------- Auth ----------------
 
 export async function login(email: string, password: string, turnstileToken: string) {
-  return request<{ ok: true; step: "verify" | "passkey" | "register-passkey" | "done" }>("/api/auth/login", {
+  return request<{ ok: true; step: "verify" }>("/api/auth/login", {
     method: "POST",
     body: { email, password, turnstileToken },
   })
@@ -89,41 +89,6 @@ export async function verifyCode(code: string) {
   })
   // Fetch the session immediately after verifying so we have the CSRF token
   // for subsequent admin requests in this tab.
-  await getSession()
-  return result
-}
-
-
-// ---------------- Passkeys / WebAuthn ----------------
-
-export async function fetchPasskeyRegisterOptions() {
-  const data = await request<{ ok: true; publicKey: any }>("/api/auth/passkey/register/options", {
-    method: "POST",
-  })
-  return data.publicKey
-}
-
-export async function verifyPasskeyRegister(credential: any) {
-  const result = await request<{ ok: true }>("/api/auth/passkey/register/verify", {
-    method: "POST",
-    body: { credential },
-  })
-  await getSession()
-  return result
-}
-
-export async function fetchPasskeyLoginOptions() {
-  const data = await request<{ ok: true; publicKey: any }>("/api/auth/passkey/login/options", {
-    method: "POST",
-  })
-  return data.publicKey
-}
-
-export async function verifyPasskeyLogin(credential: any) {
-  const result = await request<{ ok: true }>("/api/auth/passkey/login/verify", {
-    method: "POST",
-    body: { credential },
-  })
   await getSession()
   return result
 }
@@ -412,5 +377,4 @@ export async function updateSettings(input: Pick<ApiSettings, "globalRequireHash
   })
   return data.settings
 }
-
 
