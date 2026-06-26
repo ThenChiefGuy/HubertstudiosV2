@@ -32,20 +32,8 @@ export default function LoginPage() {
 
     setLoading(true)
     try {
-      const result = await login(email, password, turnstileToken)
-      if (result.step === "verify") {
-        router.push(`/verify?email=${encodeURIComponent(email)}`)
-        return
-      }
-      if (result.step === "passkey") {
-        router.push(`/passkey?mode=login&email=${encodeURIComponent(email)}`)
-        return
-      }
-      if (result.step === "register-passkey") {
-        router.push(`/passkey?mode=register&email=${encodeURIComponent(email)}`)
-        return
-      }
-      router.push("/overview")
+      await login(email, password, turnstileToken)
+      router.push(`/verify?email=${encodeURIComponent(email)}`)
     } catch (err) {
       setError(err instanceof ApiError ? err.message : "Something went wrong. Please try again.")
       setTurnstileToken(null) // Turnstile tokens are single-use — force a fresh widget render on retry.
