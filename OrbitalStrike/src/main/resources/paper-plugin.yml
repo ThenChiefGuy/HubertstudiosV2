@@ -1,0 +1,59 @@
+name: OrbitalStrike
+version: '${project.version}'
+main: com.hubertstudios.orbitalstrike.OrbitalStrikePlugin
+api-version: '1.21'
+folia-supported: true
+author: HubertStudios
+description: Customizable orbital strike cannon - dog, wither, nuke and strike payloads fired via fishing-rod targeting.
+website: https://hubertstudios.dev
+
+commands:
+  orbital:
+    description: Trigger or distribute orbital strikes.
+    usage: |
+      /orbital <dog|wither|nuke|strike>
+      /orbital <dog|wither|nuke|strike> <amount> [player]
+      /orbital bomb <wither|nuke|strike> <player> [amount]
+      /orbital reload
+    permission: orbitalstrike.use
+
+permissions:
+  orbitalstrike.use:
+    description: Allows base access to /orbital (per-type permissions still apply).
+    default: op
+  orbitalstrike.use.dog:
+    description: Allows triggering/receiving the dog (wolf) strike.
+    default: op
+  orbitalstrike.use.wither:
+    description: Allows triggering/receiving the wither dome strike.
+    default: op
+  orbitalstrike.use.nuke:
+    description: Allows triggering/receiving the nuke strike.
+    default: op
+  orbitalstrike.use.strike:
+    description: Allows triggering/receiving the single beam strike.
+    default: op
+  orbitalstrike.give:
+    description: Allows giving rods to other players via /orbital <type> <amount> [player].
+    default: op
+  orbitalstrike.bomb:
+    description: Allows use of /orbital bomb.
+    default: op
+  orbitalstrike.admin:
+    description: Allows reloading the plugin configuration.
+    default: op
+  orbitalstrike.bypass.cooldown:
+    description: Bypasses per-player cooldowns between strikes.
+    default: false
+  orbitalstrike.*:
+    description: Grants all OrbitalStrike permissions.
+    default: false
+    children:
+      orbitalstrike.use: true
+      orbitalstrike.use.dog: true
+      orbitalstrike.use.wither: true
+      orbitalstrike.use.nuke: true
+      orbitalstrike.use.strike: true
+      orbitalstrike.give: true
+      orbitalstrike.bomb: true
+      orbitalstrike.admin: true

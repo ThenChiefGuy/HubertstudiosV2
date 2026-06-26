@@ -1,0 +1,136 @@
+plugin:
+  language-file: "messages.yml"
+  debug-enabled: false
+
+storage:
+  mode: "sqlite" # sqlite
+  sqlite-file: "data/coreguard.db"
+  sqlite-wal-enabled: true
+
+anti-dupe:
+  enabled: true
+
+  unstackable-fingerprints:
+    enabled: true
+    mode: "SMART_UNSTACKABLE" # SMART_UNSTACKABLE
+
+  stackable-ledger:
+    enabled: false
+    mode: "SELECTED_MATERIALS_ONLY" # SELECTED_MATERIALS_ONLY
+    tracked-materials: # Bukkit Material names
+      - DIAMOND
+      - EMERALD
+      - NETHERITE_INGOT
+      - ANCIENT_DEBRIS
+      - ENCHANTED_GOLDEN_APPLE
+    require-custom-item-meta: true
+    over-limit-action: "ALERT" # ALERT | ALERT_AND_REMOVE | ALERT_AND_TEMPBAN
+
+  fingerprint-triggers:
+    craft: true
+    pickup: true
+    item-spawn: true
+    join-scan: true
+    inventory-click: true
+    drop: true
+
+  missing-fingerprint:
+    action: "WRITE_NEW" # WRITE_NEW | IGNORE
+
+  duplicate-detection:
+    action: "ALERT_AND_REMOVE" # ALERT | ALERT_AND_REMOVE | ALERT_AND_TEMPBAN
+    tempban-duration-minutes: 1440
+    alert-permission: "coreguard.alerts.dupe"
+    log-to-file: true
+    blacklist-after-detection: false
+
+player-scan:
+  scan-player-inventory: true
+  scan-ender-chest: true
+
+freeze:
+  enabled: true
+  use-stick: false
+  stick-material: "BLAZE_ROD" # Bukkit Material name
+  stick-display-name: "&cFreeze Stick"
+  stick-uses: 25
+  delete-stick-when-empty: true
+  prevent-movement: true
+  prevent-interaction: true
+  prevent-chat: true
+  prevent-commands: true
+  prevent-damage-taken: true
+  allowed-commands: # Command labels without /
+    - msg
+    - r
+    - discord
+  warning-title: "&cYou are frozen"
+  warning-actionbar: "&7Contact staff in Discord"
+
+vanish:
+  fake-join-quit-messages: true
+  fake-join-message: "&e%player% joined the game"
+  fake-quit-message: "&e%player% left the game"
+  hide-from-tablist: true
+  persist-on-relog: true
+  prevent-item-pickup: true
+  prevent-mob-targeting: true
+
+staff-mode:
+  god-mode-enabled: true
+  flight-enabled: true
+  give-compass-tracker: true
+  enable-vanish-when-staff-mode-starts: true
+  hotbar-loadout:
+    slot-0: INVENTORY_GUI_ITEM # INVENTORY_GUI_ITEM | VANISH_TOGGLE | FREEZE_STICK | RANDOM_TELEPORT | STAFFMODE_DISABLE
+    slot-1: VANISH_TOGGLE # INVENTORY_GUI_ITEM | VANISH_TOGGLE | FREEZE_STICK | RANDOM_TELEPORT | STAFFMODE_DISABLE
+    slot-2: FREEZE_STICK # INVENTORY_GUI_ITEM | VANISH_TOGGLE | FREEZE_STICK | RANDOM_TELEPORT | STAFFMODE_DISABLE
+    slot-3: RANDOM_TELEPORT # INVENTORY_GUI_ITEM | VANISH_TOGGLE | FREEZE_STICK | RANDOM_TELEPORT | STAFFMODE_DISABLE
+    slot-8: STAFFMODE_DISABLE # INVENTORY_GUI_ITEM | VANISH_TOGGLE | FREEZE_STICK | RANDOM_TELEPORT | STAFFMODE_DISABLE
+
+punishment-system:
+  default-tempban-minutes: 1440
+  default-tempmute-minutes: 60
+
+  # Bans are enforced against every identifier known at ban time (UUID, name, and IP
+  # if available) — a reconnect matching ANY of them is blocked. This matters because
+  # on offline-mode/cracked servers none of these are guaranteed to stay constant for
+  # a given person (a name change on a cracked server changes their derived UUID too),
+  # so relying on a single identifier lets a ban be evaded by changing just that one.
+  ban-enforcement:
+    uuid-record-enabled: true
+    # If true, also IP-bans the player's current address at the moment they're banned
+    # (only possible while they're online to read an address from). This is the
+    # strongest defense against name/UUID changes, since IP doesn't change just because
+    # a name does — but IPs can be shared (NAT, school/work networks, VPNs) or can
+    # themselves change between sessions for the banned player, so it's an additional
+    # signal, not a replacement for the UUID+name lockdown.
+    ip-ban-on-player-ban: false
+    immediate-lockdown-enabled: true
+    repeat-kick-attempts: 5
+    repeat-kick-every-ticks: 20
+
+  broadcast-bans: false
+  broadcast-kicks: false
+  muted-command-block-list: # Command labels without /
+    - me
+    - msg
+    - tell
+    - w
+
+lookup:
+  store-ip-addresses: true
+  show-alt-accounts-by-ip: true
+
+inventory-backups:
+  auto-backup-on-death: true
+  auto-backup-on-disconnect: true
+  max-backups-per-player: 10
+
+audit-log:
+  enabled: true
+  log-staff-actions: true
+  file-path: "logs/staffactions.log"
+
+hot-reload:
+  enabled: true

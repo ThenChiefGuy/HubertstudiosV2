@@ -1,0 +1,57 @@
+name: CoreGuard
+version: '1.0.0'
+main: com.HubertStudios.coreguard.CoreGuard
+api-version: '1.21'
+folia-supported: true
+author: HubertStudios
+description: Premium AntiDupe, AntiExploit and Staff Management plugin for Paper 1.21.x
+commands:
+  coreguard:
+    description: CoreGuard root command
+    usage: /coreguard help
+    aliases: [cg]
+permissions:
+  coreguard.use:
+    default: true
+  coreguard.admin.*:
+    default: op
+    children:
+      coreguard.admin.reload: true
+      coreguard.admin.blacklist: true
+      coreguard.admin.dupelog: true
+      coreguard.admin.banip: true
+      coreguard.admin.audit: true
+  coreguard.staff.*:
+    default: op
+    children:
+      coreguard.staff.vanish: true
+      coreguard.staff.vanish.others: true
+      coreguard.staff.spy: true
+      coreguard.staff.spy.others: true
+      coreguard.staff.freeze: true
+      coreguard.staff.freezestick: true
+      coreguard.staff.inventory: true
+      coreguard.staff.echest: true
+      coreguard.staff.ban: true
+      coreguard.staff.mute: true
+      coreguard.staff.warn: true
+      coreguard.staff.warn.clear: true
+      coreguard.staff.kick: true
+      coreguard.staff.staffmode: true
+      coreguard.staff.chat: true
+      coreguard.staff.lookup: true
+      coreguard.staff.scan: true
+      coreguard.staff.iteminfo: true
+      coreguard.staff.invbackup: true
+      coreguard.staff.invrestore: true
+      coreguard.staff.history: true
+  coreguard.alerts.dupe:
+    default: op
+  coreguard.alerts.staff:
+    default: op
+  coreguard.bypass.freeze:
+    default: op
+  coreguard.bypass.vanish-detect:
+    default: op
+  coreguard.bypass.dupe-check:
+    default: op
