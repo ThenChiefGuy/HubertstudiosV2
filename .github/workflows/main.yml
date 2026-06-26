@@ -1,0 +1,38 @@
+name: Find, Unzip, and Save
+
+on:
+  push:
+    branches:
+      - main # Change this if your default branch is master
+  workflow_dispatch:
+
+# CRITICAL: This gives the action permission to write/push changes back to your repo
+permissions:
+  contents: write
+
+jobs:
+  unzip-and-push:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Find and unzip all zip files to root
+        run: |
+          # Finds .zip or .ZIP and extracts them to the root (.)
+          find . -type f -iname "*.zip" -exec unzip -o {} -d . \;
+
+      - name: Commit and push unzipped folders back to repo
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          
+          # Stage all the newly unzipped files and folders
+          git add .
+          
+          # Commit the changes. The "|| true" ensures the script doesn't crash if nothing changed
+          git commit -m "chore: auto-unzipped files to root" || echo "No new files to commit"
+          
+          # Push the changes back to your repository
+          git push
