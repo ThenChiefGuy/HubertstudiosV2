@@ -1,0 +1,16 @@
+# HubertStudios universal license client template.
+# Product name in dashboard must match plugin.yml name exactly.
+
+license: "put-license-here"
+worker-url: "https://your-license-worker.example.com"
+public-key-pem: |
+  -----BEGIN PUBLIC KEY-----
+  PASTE_PUBLIC_KEY_HERE
+  -----END PUBLIC KEY-----
+
+recheck-interval-minutes: 60
+
+server:
+  public-ip: ""
+  hostname: ""
+  domain: ""

@@ -1,0 +1,57 @@
+prefix: "&#6A5ACD&lCoreGuard &8» "
+no-permission: "%prefix%&cYou do not have permission."
+only-player: "%prefix%&cOnly players can use this command."
+player-not-found: "%prefix%&cPlayer not found."
+invalid-usage: "%prefix%&cInvalid usage. Use: &f%usage%"
+reload-success: "%prefix%&aConfig, messages, blacklist and GUIs reloaded."
+command-header: "%prefix%&fRunning &dCoreGuard &7v%version%"
+
+dupe:
+  item-no-item: "%prefix%&cHold an item first."
+  item-no-fingerprint: "%prefix%&eThis item has no fingerprint."
+  item-info:
+    - "&8&m--------------------------"
+    - "&dFingerprint: &f%uuid%"
+    - "&dMaterial: &f%material%"
+    - "&dCreated: &f%created_at%"
+    - "&dMethod: &f%method%"
+    - "&dLast holder: &f%holder%"
+    - "&8&m--------------------------"
+  scan-start: "%prefix%&7Scanning &f%player%&7..."
+  scan-clean: "%prefix%&aNo duplicate/blacklisted fingerprints found."
+  scan-found: "%prefix%&cFound &f%count% &cproblem(s)."
+  alert: "%prefix%&cDuplicate item detected: &f%uuid% &7holder: &f%player%"
+  removed: "%prefix%&cDuplicated item removed."
+
+blacklist:
+  added: "%prefix%&aBlacklisted UUID &f%uuid%&a."
+  removed: "%prefix%&aRemoved UUID &f%uuid% &afrom blacklist."
+  empty: "%prefix%&eBlacklist is empty."
+
+freeze:
+  frozen: "%prefix%&cYou froze &f%player%&c."
+  unfrozen: "%prefix%&aYou unfroze &f%player%&a."
+  target-title: "&cYou are frozen"
+  target-actionbar: "&7Contact staff in Discord"
+  blocked-command: "%prefix%&cYou are frozen and cannot use this command."
+  stick-given: "%prefix%&aFreeze stick given."
+
+vanish:
+  enabled: "%prefix%&aVanish enabled for &f%player%&a."
+  disabled: "%prefix%&cVanish disabled for &f%player%&c."
+
+staff:
+  chat-format: "&8[&bSC&8] &f%player%&8: &b%message%"
+  mode-enabled: "%prefix%&aStaff mode enabled."
+  mode-disabled: "%prefix%&cStaff mode disabled."
+  backup-created: "%prefix%&aInventory backup created: &f%id%"
+  backup-restored: "%prefix%&aInventory backup restored."
+  backup-missing: "%prefix%&cBackup not found."
+
+punishments:
+  muted: "%prefix%&c%player% was muted. Reason: &f%reason%"
+  unmuted: "%prefix%&a%player% was unmuted."
+  warned: "%prefix%&e%player% was warned. Reason: &f%reason%"
+  kicked: "%prefix%&c%player% was kicked. Reason: &f%reason%"
+  banned: "%prefix%&c%player% was banned. Reason: &f%reason%"
+  unbanned: "%prefix%&a%player% was unbanned."

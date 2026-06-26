@@ -1,0 +1,239 @@
+# =====================================================================
+#  OrbitalStrike Configuration
+#  Plugin version: ${project.version}
+#
+#  Everything below is hot-reloadable via /orbital reload (orbitalstrike.admin).
+# =====================================================================
+
+general:
+  prefix: "&8[&bOrbital&8] &7"
+  # Per-player cooldown (seconds) between any two strikes, regardless of type.
+  # Set to 0 to disable. Players with orbitalstrike.bypass.cooldown ignore this.
+  global-cooldown-seconds: 10
+  # If true, players also get a per-type cooldown on top of the global one.
+  per-type-cooldown-enabled: false
+  # How long (seconds) a targeting rod stays usable before it expires and is
+  # silently removed from the player's inventory if not used.
+  rod-expiry-seconds: 30
+  # Maximum distance (blocks) the raycast targeting will search for a valid impact point.
+  # Not used by "dog" (which targets the caster's own position, no raycast needed).
+  max-target-distance: 150
+  # If the raycast finds no block in range: cancel the strike, or strike at max range.
+  fallback-on-miss: "cancel"  # cancel | max-range
+  # Default interval (ticks) between successive strikes fired by /orbital bomb
+  # when amount > 1. Can be overridden per type below.
+  bomb-strike-interval-ticks: 20
+
+targeting:
+  # Visualization mode while aiming (after the first reel, before the second reel).
+  # Not used by "dog".
+  #   raycast - a live indicator follows the block your crosshair is on, updated on movement
+  #   fixed   - the target is locked once on the first reel and a static marker is shown there
+  #   none    - no visual indicator at all (best performance)
+  mode: "raycast"
+  # Marker rendering type. block-display uses a client-visible BlockDisplay entity
+  # (no particles, cheap). none disables rendering entirely.
+  marker-type: "block-display"
+  marker-block: "REDSTONE_BLOCK"
+  # How often (ticks) the raycast marker refreshes while in "raycast" mode.
+  raycast-update-interval-ticks: 4
+
+sounds:
+  rod-given: "ENTITY_EXPERIENCE_ORPHAN_AMBIENT"
+  target-locked: "BLOCK_BEACON_ACTIVATE"
+  pre-fire-warning: "ENTITY_WARDEN_SONIC_CHARGE"
+  fire: "ENTITY_GENERIC_EXPLODE"
+
+# =====================================================================
+# Per-strike-type configuration. Each type has its OWN rod settings.
+# Each type also supports "repeat-count" - the whole sequence (for dog: the
+# spawn batch; for wither/nuke: carrier-fly-and-split; for strike: the impact)
+# repeats that many times per single rod use, spaced by repeat-interval-ticks.
+# =====================================================================
+
+strikes:
+
+  # -------------------------------------------------------------------
+  # DOG: no raycast target. Spawns tamed (not sitting), neutral wolves
+  # directly around the CASTER (or, for /orbital bomb - not allowed for
+  # dog - this type is excluded from bomb entirely).
+  # -------------------------------------------------------------------
+  dog:
+    permission: "orbitalstrike.use.dog"
+    allow-bomb: false   # hard-disabled regardless of command input
+
+    rod:
+      material: "FISHING_ROD"
+      custom-name: "&6&lK-9 Orbital Deployment"
+      lore-enabled: true
+      lore:
+        - "&7Reel once to prepare."
+        - "&7Reel again to deploy."
+      glow: true
+
+    fire-delay-ticks: 10
+    repeat-count: 1
+    repeat-interval-ticks: 20
+
+    wolf-count: 6
+    min-radius: 5.0
+    max-radius: 7.0
+    lifetime-seconds: 60     # 0 = permanent (never auto-despawns)
+    adult: true
+    variant: "PALE"          # any valid Wolf.Variant
+    sitting: false
+    tamed: true
+    # Standard vanilla AI: wolves are neutral and only turn hostile if attacked.
+    angry-on-spawn: false
+
+    equipment:
+      enabled: true
+      body-armor: "WOLF_ARMOR"   # any item usable as wolf armor, or "NONE"
+
+    effects:
+      enabled: true
+      list:
+        - type: "STRENGTH"
+          amplifier: 1
+          duration-seconds: 60
+        - type: "SPEED"
+          amplifier: 0
+          duration-seconds: 60
+
+    warning:
+      enabled: true
+      message: "&6&lK-9 units inbound!"
+      lead-time-ticks: 10
+
+  # -------------------------------------------------------------------
+  # WITHER: raycast target. A single carrier wither skull flies toward
+  # the target point. Once within "split-distance" blocks of the target,
+  # it splits into a half-sphere dome of skulls arranged in an even grid
+  # (not random) so the circular area is fully, evenly covered. All dome
+  # skulls then launch together toward the ground below them.
+  # -------------------------------------------------------------------
+  wither:
+    permission: "orbitalstrike.use.wither"
+    allow-bomb: true
+
+    rod:
+      material: "FISHING_ROD"
+      custom-name: "&5&lWither Cannon Control"
+      lore-enabled: true
+      lore:
+        - "&7Reel once to lock target."
+        - "&7Reel again to unleash."
+      glow: true
+
+    fire-delay-ticks: 20
+    repeat-count: 1
+    repeat-interval-ticks: 40
+    bomb-interval-ticks: 30   # used instead of general default when fired via /orbital bomb
+
+    carrier:
+      spawn-height-offset: 50.0   # blocks above target the carrier starts
+      fly-speed: 1.6
+      split-distance: 15.0        # blocks above target at which it splits into the dome
+
+    dome:
+      # Grid resolution across the dome's footprint. Total skull count =
+      # rows * columns (points outside the circular radius are skipped,
+      # so the effective count is roughly rows*columns*0.78).
+      grid-rows: 6
+      grid-columns: 6
+      radius: 6.0                  # radius (blocks) of the circular area covered
+      dome-height: 4.0             # height of the half-sphere above the impact plane
+      hold-ticks: 15                # how long the dome holds before all skulls launch together
+      launch-speed: 1.3
+      # Percentage (0-100) chance each individual skull is the blue/charged variant.
+      blue-percentage: 35
+      blue-explosion-power-override: -1.0    # -1 = vanilla charged-skull default
+      black-explosion-power-override: -1.0   # -1 = vanilla default
+      fire-on-impact: false
+
+    warning:
+      enabled: true
+      message: "&5&lWither cannon charging!"
+      lead-time-ticks: 20
+
+  # -------------------------------------------------------------------
+  # NUKE: raycast target. A single carrier falls from the sky toward the
+  # target and "splits" into N TNT units once within split-altitude
+  # blocks of the target, arranged in the configured pattern.
+  # -------------------------------------------------------------------
+  nuke:
+    permission: "orbitalstrike.use.nuke"
+    allow-bomb: true
+
+    rod:
+      material: "FISHING_ROD"
+      custom-name: "&4&lStrategic Orbital Device"
+      lore-enabled: true
+      lore:
+        - "&7Reel once to lock target."
+        - "&7Reel again to authorize launch."
+      glow: true
+
+    fire-delay-ticks: 30
+    repeat-count: 1
+    repeat-interval-ticks: 60
+    bomb-interval-ticks: 40
+
+    carrier:
+      spawn-height-offset: 80.0
+      fall-speed: 2.0
+      split-altitude: 15.0
+      display-block: "TNT"
+
+    pattern: "ring"          # ring | grid | random | line
+    pattern-radius: 5.0
+    pattern-spacing: 2.0       # used by grid/line patterns
+    unit-count: 6
+
+    fuse-ticks: 40
+    yield-multiplier: 3.0     # multiplies explosion power vs. vanilla TNT
+    break-blocks: true
+    set-fire: false
+
+    warning:
+      enabled: true
+      message: "&4&l!!! WARHEAD INBOUND !!!"
+      lead-time-ticks: 30
+      repeat-interval-ticks: 20   # repeats the warning message itself; 0 = only once
+
+  # -------------------------------------------------------------------
+  # STRIKE: raycast target. Single concentrated impact - no carrier
+  # entity, no spread pattern. Direct damage + explosion + visual beam.
+  # -------------------------------------------------------------------
+  strike:
+    permission: "orbitalstrike.use.strike"
+    allow-bomb: true
+
+    rod:
+      material: "FISHING_ROD"
+      custom-name: "&e&lPrecision Strike Beacon"
+      lore-enabled: false
+      lore: []
+      glow: false
+
+    fire-delay-ticks: 15
+    repeat-count: 1
+    repeat-interval-ticks: 20
+    bomb-interval-ticks: 15
+
+    radius: 4.0
+    damage: 40.0
+    explosion-power: 6.0
+    break-blocks: true
+    set-fire: true
+
+    beam:
+      enabled: true
+      height: 40.0
+      block: "BEACON"
+      duration-ticks: 10
+
+    warning:
+      enabled: true
+      message: "&e&lStrike beam locked!"
+      lead-time-ticks: 15

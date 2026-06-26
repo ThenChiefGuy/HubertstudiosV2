@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>HubertStudios License Manager — One-Time Setup Tool</title>
+<style>
+  :root { color-scheme: light dark; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 20px 16px 60px;
+    line-height: 1.5;
+    background: #0b0e14;
+    color: #e6e9ef;
+  }
+  h1 { font-size: 1.3rem; }
+  h2 { font-size: 1.05rem; margin-top: 2.5rem; border-top: 1px solid #2a2f3a; padding-top: 1.5rem; }
+  p.note { color: #9aa3b2; font-size: 0.9rem; }
+  .warn {
+    background: #2a1f0f; border: 1px solid #8a5a16; border-radius: 8px;
+    padding: 10px 14px; font-size: 0.88rem; color: #e8c98a; margin: 12px 0;
+  }
+  input[type="password"], input[type="text"] {
+    width: 100%; box-sizing: border-box; padding: 10px 12px; font-size: 1rem;
+    border-radius: 8px; border: 1px solid #3a4150; background: #161a22; color: #e6e9ef;
+    margin-bottom: 8px;
+  }
+  button {
+    background: #3a6df0; color: white; border: none; padding: 12px 18px;
+    border-radius: 8px; font-size: 1rem; cursor: pointer; width: 100%;
+  }
+  button:active { background: #2c54c4; }
+  .field { margin-top: 14px; }
+  .field label {
+    display: block; font-size: 0.78rem; text-transform: uppercase;
+    letter-spacing: 0.04em; color: #9aa3b2; margin-bottom: 4px;
+  }
+  .copybox {
+    position: relative; background: #161a22; border: 1px solid #2a2f3a;
+    border-radius: 8px; padding: 12px; font-family: ui-monospace, Menlo, Consolas, monospace;
+    font-size: 0.82rem; white-space: pre-wrap; word-break: break-all; margin-bottom: 6px;
+  }
+  .copybtn {
+    margin-top: 4px; background: #232a38; color: #cdd4e0; font-size: 0.85rem;
+    padding: 8px 12px; width: auto;
+  }
+  .result { display: none; margin-top: 18px; }
+  .result.show { display: block; }
+  .small { font-size: 0.82rem; color: #9aa3b2; }
+</style>
+</head>
+<body>
+
+<h1>HubertStudios License Manager — Setup Tool</h1>
+<p class="note">
+  Runs entirely in this browser tab using the Web Crypto API. Nothing is sent
+  anywhere — no network requests are made by this page. Safe to use on your
+  phone. You can save this file locally and open it offline if you prefer.
+</p>
+<div class="warn">
+  This replaces the <code>scripts/generate-keypair.js</code> and
+  <code>scripts/hash-password.js</code> Node scripts from the README, since
+  you're setting this up from the Cloudflare dashboard without a CLI.
+</div>
+
+<h2>1. Generate the ECDSA signing keypair</h2>
+<p class="note">
+  The private key goes into the Worker as the <code>PRIVATE_KEY</code> secret.
+  The public key goes into your Java plugin's <code>License.java</code>
+  (the <code>publicKeyPem</code> you pass to <code>LicenseGate.Config.builder()</code>).
+</p>
+<button onclick="generateKeypair()">Generate Keypair</button>
+<div id="keypairResult" class="result">
+  <div class="field">
+    <label>PRIVATE_KEY — paste into the Worker secret (keep absolutely private)</label>
+    <div class="copybox" id="privateKeyOut"></div>
+    <button class="copybtn" onclick="copyText('privateKeyOut')">Copy private key</button>
+  </div>
+  <div class="field">
+    <label>PUBLIC_KEY — paste into License.java's publicKeyPem</label>
+    <div class="copybox" id="publicKeyOut"></div>
+    <button class="copybtn" onclick="copyText('publicKeyOut')">Copy public key</button>
+  </div>
+</div>
+
+<h2>2. Generate the admin password hash</h2>
+<p class="note">
+  Pick a strong admin password (12+ characters). This page derives a
+  PBKDF2-SHA256 hash (210,000 iterations) and a random salt — these are what
+  you store as <code>ADMIN_PASSWORD_HASH</code> and
+  <code>ADMIN_PASSWORD_SALT</code>. The plaintext password is never sent
+  anywhere; only the resulting hash/salt are meant to be pasted into
+  Cloudflare. Save the plaintext password itself in your own password manager
+  — it cannot be recovered from the hash.
+</p>
+<input type="password" id="passwordInput" placeholder="Your admin password (12+ characters)" autocomplete="new-password" />
+<button onclick="hashPassword()">Generate Password Hash</button>
+<div id="passwordResult" class="result">
+  <div class="field">
+    <label>ADMIN_PASSWORD_HASH</label>
+    <div class="copybox" id="hashOut"></div>
+    <button class="copybtn" onclick="copyText('hashOut')">Copy hash</button>
+  </div>
+  <div class="field">
+    <label>ADMIN_PASSWORD_SALT</label>
+    <div class="copybox" id="saltOut"></div>
+    <button class="copybtn" onclick="copyText('saltOut')">Copy salt</button>
+  </div>
+</div>
+
+<h2>3. Generate SESSION_SECRET</h2>
+<p class="note">A long random string used to sign session cookies and verification codes.</p>
+<button onclick="generateSessionSecret()">Generate SESSION_SECRET</button>
+<div id="sessionResult" class="result">
+  <div class="field">
+    <label>SESSION_SECRET</label>
+    <div class="copybox" id="sessionOut"></div>
+    <button class="copybtn" onclick="copyText('sessionOut')">Copy</button>
+  </div>
+</div>
+
+<p class="small" style="margin-top:3rem">
+  Where these go in the Cloudflare dashboard: open your Worker →
+  <b>Settings</b> → <b>Variables and Bindings</b> → <b>Add</b> → choose type
+  <b>Secret</b> (not "Text") for every value generated here, so it's
+  encrypted at rest and hidden after saving.
+</p>
+
+<script>
+function toPem(buffer, label) {
+  const bytes = new Uint8Array(buffer);
+  let binary = "";
+  for (let i = 0; i < bytes.length; i++) binary += String.fromCharCode(bytes[i]);
+  const base64 = btoa(binary);
+  const lines = base64.match(/.{1,64}/g).join("\n");
+  return `-----BEGIN ${label}-----\n${lines}\n-----END ${label}-----`;
+}
+
+function toHex(buffer) {
+  return [...new Uint8Array(buffer)].map((b) => b.toString(16).padStart(2, "0")).join("");
+}
+
+async function generateKeypair() {
+  const keyPair = await crypto.subtle.generateKey(
+    { name: "ECDSA", namedCurve: "P-256" },
+    true,
+    ["sign", "verify"]
+  );
+  const privateRaw = await crypto.subtle.exportKey("pkcs8", keyPair.privateKey);
+  const publicRaw = await crypto.subtle.exportKey("spki", keyPair.publicKey);
+  document.getElementById("privateKeyOut").textContent = toPem(privateRaw, "PRIVATE KEY");
+  document.getElementById("publicKeyOut").textContent = toPem(publicRaw, "PUBLIC KEY");
+  document.getElementById("keypairResult").classList.add("show");
+}
+
+async function hashPassword() {
+  const password = document.getElementById("passwordInput").value;
+  if (!password || password.length < 12) {
+    alert("Please enter a password of at least 12 characters.");
+    return;
+  }
+  const saltBytes = crypto.getRandomValues(new Uint8Array(16));
+  const saltHex = toHex(saltBytes);
+
+  const keyMaterial = await crypto.subtle.importKey(
+    "raw",
+    new TextEncoder().encode(password),
+    { name: "PBKDF2" },
+    false,
+    ["deriveBits"]
+  );
+  const derived = await crypto.subtle.deriveBits(
+    { name: "PBKDF2", salt: saltBytes, iterations: 210000, hash: "SHA-256" },
+    keyMaterial,
+    256
+  );
+  const hashHex = toHex(derived);
+
+  document.getElementById("hashOut").textContent = hashHex;
+  document.getElementById("saltOut").textContent = saltHex;
+  document.getElementById("passwordResult").classList.add("show");
+
+  // Clear the plaintext field from the DOM after use.
+  document.getElementById("passwordInput").value = "";
+}
+
+function generateSessionSecret() {
+  const bytes = crypto.getRandomValues(new Uint8Array(32));
+  document.getElementById("sessionOut").textContent = toHex(bytes);
+  document.getElementById("sessionResult").classList.add("show");
+}
+
+function copyText(elementId) {
+  const text = document.getElementById(elementId).textContent;
+  navigator.clipboard.writeText(text).then(() => {
+    const event = new Event("copied");
+  }).catch(() => {
+    // Fallback for browsers without clipboard API permission.
+    const range = document.createRange();
+    range.selectNodeContents(document.getElementById(elementId));
+    const sel = window.getSelection();
+    sel.removeAllRanges();
+    sel.addRange(range);
+  });
+}
+</script>
+
+</body>
+</html>

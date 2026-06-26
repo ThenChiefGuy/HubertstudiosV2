@@ -1,0 +1,7 @@
+{
+  "name": "hubertstudios-license-manager-worker",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Deployed via the Cloudflare dashboard (Workers & Pages -> Create -> upload src/ files). This package.json is informational only — no npm install or wrangler CLI is required for the dashboard-based deploy path described in README.md."
+}

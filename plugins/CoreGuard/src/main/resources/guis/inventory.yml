@@ -1,0 +1,36 @@
+title: "&8Inventory: %player%"
+rows: 6
+
+live-edit:
+  allow-multiple-viewers: false
+  log-actions: true
+  require-confirmation: false
+  sound-on-open: "BLOCK_CHEST_OPEN" # Bukkit Sound name
+
+filler:
+  enabled: true
+  material: "BLACK_STAINED_GLASS_PANE" # Bukkit Material name
+  name: " "
+
+buttons:
+  refresh:
+    slot: 6
+    material: "LIME_DYE" # Bukkit Material name
+    name: "&aRefresh"
+
+  backup:
+    slot: 7
+    material: "CHEST" # Bukkit Material name
+    name: "&eCreate Backup"
+
+  close:
+    slot: 8
+    material: "BARRIER" # Bukkit Material name
+    name: "&cClose"
+
+labels:
+  helmet: "&bHelmet"
+  chestplate: "&bChestplate"
+  leggings: "&bLeggings"
+  boots: "&bBoots"
+  offhand: "&bOffhand"

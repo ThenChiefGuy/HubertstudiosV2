@@ -1,0 +1,46 @@
+# wrangler.toml — example configuration for the HubertStudios License Manager Worker.
+#
+# You're deploying entirely from the Cloudflare dashboard (no CLI), so this
+# file is mostly a REFERENCE showing what bindings the Worker code expects
+# by name. When you create the Worker in the dashboard, you'll add these
+# same bindings under Settings -> Variables and Bindings, using these exact
+# binding names (DB, KV) since the code in src/ refers to them as env.DB and
+# env.KV.
+#
+# No R2 binding — this build doesn't use R2 at all. Plugin images are stored
+# as base64 directly in the D1 "products" table.
+
+name = "hubertstudios-license-manager"
+main = "src/index.js"
+compatibility_date = "2026-06-01"
+
+# ---- D1 ----
+# Dashboard: Workers & Pages -> your Worker -> Settings -> Bindings -> Add ->
+# D1 database -> Variable name: DB -> select your database.
+[[d1_databases]]
+binding = "DB"
+database_name = "hubertstudios-license-db"
+database_id = "REPLACE_WITH_YOUR_D1_DATABASE_ID"
+
+# ---- KV ----
+# Dashboard: Workers & Pages -> your Worker -> Settings -> Bindings -> Add ->
+# KV namespace -> Variable name: KV -> select your namespace.
+[[kv_namespaces]]
+binding = "KV"
+id = "REPLACE_WITH_YOUR_KV_NAMESPACE_ID"
+
+# ---- Secrets (set via dashboard: Settings -> Variables and Bindings ->
+# Add -> "Secret" type, NOT "Text" type, so they're encrypted at rest and
+# never displayed again after saving) ----
+# ADMIN_EMAIL
+# ADMIN_PASSWORD_HASH
+# ADMIN_PASSWORD_SALT
+# SESSION_SECRET
+# PRIVATE_KEY
+# EMAIL_API_KEY
+# EMAIL_FROM
+# TURNSTILE_SECRET_KEY
+# DASHBOARD_ORIGIN   # exact Vercel dashboard origin, e.g. https://your-dashboard.vercel.app
+
+[observability]
+enabled = true

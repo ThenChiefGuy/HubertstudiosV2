@@ -1,0 +1,1 @@
+ALTER TABLE server_sightings ADD COLUMN players INTEGER NOT NULL DEFAULT 0;
